@@ -25,17 +25,24 @@ def main():
             next_status=abf.sweepC[1]
             partial_sum=0
             counter=0
-            channel=0
             # Plotting Bonanza
             if (len(abf.tagComments)> 0):
                 plot_comments(abf)
-            if ((abf.channelCount>1) | (abf.sweepCount>0)):
+                if (abf.channelCount>1):
+                    abf.setSweep(0, channel=1)
+                    plot_comments(abf)
+            if (abf.sweepCount>0):
+                abf.setSweep(0, channel=0)
                 plot_sweeps(abf, 1)
                 if (abf.channelCount>1):
                     plot_sweeps(abf, 2)
-            plot_epoch(abf)
+            plot_epoch(abf, 1)
+            if (abf.channelCount>1):
+                abf.setSweep(0, channel=1)
+                plot_epoch(abf, 2)
             # Loop for every sweep
             for y in range(abf.sweepCount):
+                channel=0
                 abf.setSweep(y)
                 # Printing Epochs
                 print('SWEEP #%d' % y)
@@ -75,32 +82,29 @@ def main():
         else:
             continue
 
-# THE FUNCTIONS FROM HERE ONWARDS ARE ALMOST LINE FOR LINE THOSE SUPPLIED WITH PYABF
-
 # Plot creation following recorded epochs
-def plot_epoch(abfinput):
-    # Window
-    fig = plt.figure(figsize=(8, 5))
-    # Graph 1
-    ax1 = fig.add_subplot(211)
-    ax1.plot(abfinput.sweepY, color='b')
-    ax1.set_ylabel("ADC (measurement)")
-    ax1.set_xlabel("Sweep point (index)")
-
-    # Graph 2
-    ax2 = fig.add_subplot(212)
-    ax2.plot(abfinput.sweepC, color='r')
-    ax2.set_ylabel("DAC (command)")
-    ax2.set_xlabel("Sweep point (index)")
-
-    # Loop through epochs
-    for p1 in abfinput.sweepEpochs.p1s:
-        ax1.axvline(p1, color='k', ls='--', alpha=.5)
-        ax2.axvline(p1, color='k', ls='--', alpha=.5)
-
-    # Show
-    plt.tight_layout()
-    plt.show()
+def plot_epoch(abfinput,ch):
+    for i in range(abfinput.sweepCount):
+        fig = plt.figure(figsize=(8, 5))
+        abfinput.setSweep(i)
+        # Graph 1
+        ax1 = fig.add_subplot(211)
+        ax1.set_title("Epochs for Sweep %d on Channel %d" % ((i+1), ch))
+        ax1.plot(abfinput.sweepY, color='b')
+        ax1.set_ylabel("ADC (measurement)")
+        ax1.set_xlabel("Sweep point (index)")
+        # Graph 2
+        ax2 = fig.add_subplot(212)
+        ax2.plot(abfinput.sweepC, color='r')
+        ax2.set_ylabel("DAC (command)")
+        ax2.set_xlabel("Sweep point (index)")
+        # Loop through epochs
+        for p1 in abfinput.sweepEpochs.p1s:
+            ax1.axvline(p1, color='k', ls='--', alpha=.5)
+            ax2.axvline(p1, color='k', ls='--', alpha=.5)
+        # Show
+        plt.tight_layout()
+        plt.show()
 
 def plot_sweeps(abfinput, ch):
     # Window

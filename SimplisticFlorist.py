@@ -23,6 +23,7 @@ def main():
                 abf.setSweep(y)
                 while channel < abf.channelCount:
                     channel+=1
+		    x=channel-1
                     with open('./OUTPUT/%s-sweep%d-ch%d.csv' % (filename[:-4], y, channel), 'w') as csvfile:
                         filewriter = csv.writer(csvfile, delimiter=',',
                                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)

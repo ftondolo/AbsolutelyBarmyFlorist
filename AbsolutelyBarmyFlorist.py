@@ -1,3 +1,5 @@
+# Federico Tondolo
+# Summer 2019 at the Columbia University Medical Center 
 import os
 import csv
 import sys
@@ -15,7 +17,7 @@ def main():
             # Variable Initialisation
             abf = pyabf.ABF(filename)
             abf.setSweep(0)
-            previous_status=abf.sweepC[0]
+            next_status=abf.sweepC[1]
             partial_sum=0
             counter=0
             channel=0
@@ -46,9 +48,10 @@ def main():
                                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
                         filewriter.writerow(['Time (s)', 'Command (DAC)', 'Reading (ADC)', 'Average ADC per DAC'])
                         # Loop for entire recorded time
-                        while (x <len(abf.sweepY)):
+                        while (x <len(abf.sweepY)-1):
+                            next_status=abf.sweepC[x+1]
                             # If DAC has changed
-                            if ((x!=len(abf.sweepY)-1) | (previous_status==abf.sweepC[x])):
+                            if (next_status==abf.sweepC[x]):
                                 partial_sum+=abf.sweepY[x]
                                 counter+=1
                                 filewriter.writerow([abf.sweepX[x], abf.sweepC[x], abf.sweepY[x], 'TBD'])
@@ -56,10 +59,13 @@ def main():
                             # If DAC has not changed
                             else:
                                 partial_sum/=counter
-                                previous_status=abf.sweepC[x]
                                 counter=1
                                 filewriter.writerow([abf.sweepX[x], abf.sweepC[x], abf.sweepY[x], partial_sum])
                                 x+=abf.channelCount
+                        # Final round
+                        partial_sum/=counter
+                        counter=1
+                        filewriter.writerow([abf.sweepX[x], abf.sweepC[x], abf.sweepY[x], partial_sum])
         # If file is not a video 
         else:
             continue

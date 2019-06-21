@@ -97,7 +97,7 @@ def plot_sweeps(abfinput):
     plt.xlabel(abfinput.sweepLabelX)
     for i in range(abfinput.sweepCount):
         abfinput.setSweep(i)
-        plt.plot(abfinput.sweepX, abfinput.sweepY, alpha=.5, label="sweep %d"%(i+1))
+        plt.plot(abfinput.sweepX, abfinput.sweepY, alpha=.5, label="Sweep %d"%(i+1))
     # Show
     plt.legend()
     plt.show()

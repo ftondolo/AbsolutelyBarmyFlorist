@@ -21,6 +21,11 @@ def main():
             x=0
             for y in range(abf.sweepCount):
                 abf.setSweep(y)
+                print('SWEEP #%d' % y)
+                for i, p1 in enumerate(abf.sweepEpochs.p1s):
+                    epochLevel = abf.sweepEpochs.levels[i]
+                    epochType = abf.sweepEpochs.types[i]
+                    print(f"Epoch index {i}: At point {p1} there is a {epochType} to level {epochLevel}")
                 while channel < abf.channelCount:
                     channel+=1
                     with open('./OUTPUT/%s-sweep%d-ch%d.csv' % (filename[:-4], y, channel), 'w') as csvfile:

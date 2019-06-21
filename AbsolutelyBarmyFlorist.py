@@ -28,7 +28,7 @@ def main():
                                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
                         filewriter.writerow(['Time (s)', 'Command (DAC)', 'Reading (ADC)', 'Average ADC per DAC'])
                         while (x <len(abf.sweepY)):
-                            if (previous_status==abf.sweepC[x]):
+                            if ((x!=len(abf.sweepY)-1) | (previous_status==abf.sweepC[x])):
                                 partial_sum+=abf.sweepY[x]
                                 counter+=1
                                 filewriter.writerow([abf.sweepX[x], abf.sweepC[x], abf.sweepY[x], 'TBD'])

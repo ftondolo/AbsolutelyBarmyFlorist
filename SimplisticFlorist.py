@@ -1,3 +1,5 @@
+# Federico Tondolo
+# Summer 2019 at the Columbia University Medical Center 
 import os
 import csv
 import sys

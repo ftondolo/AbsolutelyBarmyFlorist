@@ -31,7 +31,8 @@ def main():
                 plot_comments(abf)
             if ((abf.channelCount>1) | (abf.sweepCount>0)):
                 plot_sweeps(abf, 1)
-                plot_sweeps(abf, 2)
+                if (abf.channelCount>1):
+                    plot_sweeps(abf, 2)
             plot_epoch(abf)
             # Loop for every sweep
             for y in range(abf.sweepCount):

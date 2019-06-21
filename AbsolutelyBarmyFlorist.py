@@ -1,7 +1,7 @@
 # Federico Tondolo
 # Summer 2019 at the Columbia University Medical Center 
 import os
-import cs
+import csv
 import sys
 import pyabf
 import numpy as np

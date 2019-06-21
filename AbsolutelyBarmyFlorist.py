@@ -7,12 +7,17 @@ import pyabf
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Warning obfuscation to make print statements more aesthetically pleasing
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
+
 def main():
     # Creating OUTPUT directory
     os.mkdir('OUTPUT')
     # Loop for every file inside current dir
     for filename in os.listdir('.'):
-        # If file is a video file
+        # If file is an ABF file
         if (filename.endswith(".abf")):
             # Variable Initialisation
             abf = pyabf.ABF(filename)
@@ -24,10 +29,9 @@ def main():
             # Plotting Bonanza
             if (len(abf.tagComments)> 0):
                 plot_comments(abf)
-            if (abf.channelCount>1):
-                plot_channels(abf)
-            if (abf.sweepCount>0):
-                plot_sweeps(abf)
+            if ((abf.channelCount>1) | (abf.sweepCount>0)):
+                plot_sweeps(abf, 1)
+                plot_sweeps(abf, 2)
             plot_epoch(abf)
             # Loop for every sweep
             for y in range(abf.sweepCount):
@@ -50,13 +54,13 @@ def main():
                         # Loop for entire recorded time
                         while (x <len(abf.sweepY)-1):
                             next_status=abf.sweepC[x+1]
-                            # If DAC has changed
+                            # If DAC will not change
                             if (next_status==abf.sweepC[x]):
                                 partial_sum+=abf.sweepY[x]
                                 counter+=1
                                 filewriter.writerow([abf.sweepX[x], abf.sweepC[x], abf.sweepY[x], 'TBD'])
                                 x+=abf.channelCount
-                            # If DAC has not changed
+                            # If DAC will change
                             else:
                                 partial_sum/=counter
                                 counter=1
@@ -66,9 +70,11 @@ def main():
                         partial_sum/=counter
                         counter=1
                         filewriter.writerow([abf.sweepX[x], abf.sweepC[x], abf.sweepY[x], partial_sum])
-        # If file is not a video 
+        # If file is not an ABF recording 
         else:
             continue
+
+# THE FUNCTIONS FROM HERE ONWARDS ARE ALMOST LINE FOR LINE THOSE SUPPLIED WITH PYABF
 
 # Plot creation following recorded epochs
 def plot_epoch(abfinput):
@@ -95,32 +101,19 @@ def plot_epoch(abfinput):
     plt.tight_layout()
     plt.show()
 
-def plot_sweeps(abfinput):
+def plot_sweeps(abfinput, ch):
     # Window
     plt.figure(figsize=(8, 5))
-    plt.title("Sweeps")
+    plt.title("Sweeps For Channel %d"% ch)
     plt.ylabel(abfinput.sweepLabelY)
     plt.xlabel(abfinput.sweepLabelX)
     for i in range(abfinput.sweepCount):
-        abfinput.setSweep(i)
-        plt.plot(abfinput.sweepX, abfinput.sweepY, alpha=.5, label="Sweep %d"%(i+1))
-    # Show
-    plt.legend()
-    plt.show()
-
-def plot_channels(abfinput):
-    # Window
-    fig = plt.figure(figsize=(8, 5))
-    # graph the first channel
-    abfinput.setSweep(sweepNumber=0, channel=0)
-    plt.plot(abfinput.sweepX, abfinput.sweepY, label="Channel 1")
-    # Graph the second channel
-    abfinput.setSweep(sweepNumber=0, channel=1)
-    plt.plot(abfinput.sweepX, abfinput.sweepY, label="Channel 2")
-    # Decorating the graph
-    plt.ylabel(abfinput.sweepLabelY)
-    plt.xlabel(abfinput.sweepLabelX)
-    plt.axis([25, 45, -70, 50])
+        if (ch==1):
+            abfinput.setSweep(i, channel=0)
+            plt.plot(abfinput.sweepX, abfinput.sweepY, alpha=.5, label="Sweep %d"%(i+1))
+        else:
+            abfinput.setSweep(i, channel=1)
+            plt.plot(abfinput.sweepX, abfinput.sweepY, alpha=.5, label="Sweep %d"%(i+1))
     # Show
     plt.legend()
     plt.show()
@@ -145,8 +138,4 @@ def plot_comments(abfinput):
     plt.title("ABF File with Tags")
     plt.show()
 
-if not sys.warnoptions:
-    import warnings
-    warnings.simplefilter("ignore")
-    
 main()
